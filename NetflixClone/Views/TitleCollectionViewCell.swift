@@ -4,36 +4,21 @@
 //
 //  Created by Nguyen Duy Hung on 27/3/26.
 //
-
 import UIKit
 import SDWebImage
 
 class TitleCollectionViewCell: UICollectionViewCell {
     static let identifier = "TitleCollectionViewCell"
-    private let posterImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        return imageView
-    }()
+    @IBOutlet weak var posterImageView: UIImageView!
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        contentView.addSubview(posterImageView)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        posterImageView.frame = contentView.bounds
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        // Những config không làm được trong XIB thì làm ở đây
+        posterImageView.clipsToBounds = true
     }
     
     public func configure(with model: String) {
-        guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model)") else {
-            return
-        }
+        guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model)") else { return }
         posterImageView.sd_setImage(with: url, completed: nil)
     }
 }

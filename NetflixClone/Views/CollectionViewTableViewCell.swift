@@ -17,7 +17,8 @@ class CollectionViewTableViewCell: UITableViewCell{
         layout.itemSize = CGSize(width: 140, height: 200)
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.register(TitleCollectionViewCell.self, forCellWithReuseIdentifier: TitleCollectionViewCell.identifier)
+        let nib = UINib(nibName: "TitleCollectionViewCell", bundle: nil)
+        collectionView.register(nib, forCellWithReuseIdentifier: TitleCollectionViewCell.identifier)
         return collectionView
     }()
     
