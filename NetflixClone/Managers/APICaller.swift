@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import GRDB
 
 struct Constants {
     static let API_KEY = "ac90e227bedf46c08087b19100afc0f1"
