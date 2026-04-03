@@ -26,6 +26,7 @@ class HomeViewController: UIViewController {
     }()
 
     override func viewDidLoad() {
+        URLCache.shared.removeAllCachedResponses()
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         view.addSubview(homeFeedTable)
@@ -37,7 +38,11 @@ class HomeViewController: UIViewController {
         
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         homeFeedTable.tableHeaderView = headerView
-            }
+
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.homeFeedTable.reloadData()
+        }
+    }
     
     private func configureNavBar() {
         navigationItem.rightBarButtonItems = [
@@ -78,6 +83,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                     DatabaseManager.shared.saveTitles(titles, section: "trending_movies")
                 case .failure(let error):
                     print(error.localizedDescription)
+                    let cached = DatabaseManager.shared.fetchTitles(section: "trending_movies")
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("Loaded \(cached.count) phim từ cache")
+                    } else {
+                        print("empty")
+                    }
                 }
             }
         case Sections.TrendingTV.rawValue:
@@ -88,6 +100,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                     DatabaseManager.shared.saveTitles(titles, section: "trending_tv")
                 case .failure(let error):
                     print(error.localizedDescription)
+                    let cached = DatabaseManager.shared.fetchTitles(section: "trending_tv")
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("Loaded \(cached.count) phim từ cache")
+                    } else {
+                        print("empty")
+                    }
                 }
             }
         case Sections.Popular.rawValue:

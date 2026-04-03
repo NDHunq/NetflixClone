@@ -25,6 +25,7 @@ class APICaller {
         }
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
                 return
             }
             do {
@@ -43,6 +44,7 @@ class APICaller {
         }
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
                 return
             }
             do {
@@ -61,6 +63,7 @@ class APICaller {
         }
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
                 return
             }
             do {
@@ -79,6 +82,7 @@ class APICaller {
         }
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
                 return
             }
             do {
@@ -97,6 +101,7 @@ class APICaller {
         }
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
                 return
             }
             do {
