@@ -75,6 +75,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
+                    DatabaseManager.shared.saveTitles(titles, section: "trending_movies")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
@@ -84,6 +85,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
+                    DatabaseManager.shared.saveTitles(titles, section: "trending_tv")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
@@ -91,9 +93,9 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         case Sections.Popular.rawValue:
             APICaller.shared.getPopularMovies { result in
                 switch result {
-                    
                 case .success(let titles):
                     cell.configure(with: titles)
+                    DatabaseManager.shared.saveTitles(titles, section: "popular")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
@@ -103,6 +105,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
+                    DatabaseManager.shared.saveTitles(titles, section: "upcoming")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
@@ -112,7 +115,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    
+                    DatabaseManager.shared.saveTitles(titles, section: "top_rated")
                 case .failure(let error):
                     print(error.localizedDescription)
                 }

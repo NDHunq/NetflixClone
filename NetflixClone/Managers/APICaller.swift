@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import GRDB
 
 struct Constants {
     static let API_KEY = "ac90e227bedf46c08087b19100afc0f1"
@@ -32,7 +31,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(APIError.failedToGetData)) 
+                completion(.failure(APIError.failedToGetData))
             }
         }
         task.resume()
