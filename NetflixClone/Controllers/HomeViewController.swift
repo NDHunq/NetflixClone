@@ -76,7 +76,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         }
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
-            APICaller.shared.getTrendingMovies { [weak self] result in
+            APICaller.shared.getHomeTrendingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
@@ -99,7 +99,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             }
         case Sections.TrendingTV.rawValue:
-            APICaller.shared.getTrendingTVs { [weak self] result in
+            APICaller.shared.getHomeTrendingTVs { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
@@ -122,7 +122,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             }
         case Sections.Popular.rawValue:
-            APICaller.shared.getPopularMovies { [weak self] result in
+            APICaller.shared.getHomePopularMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
@@ -145,7 +145,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             }
         case Sections.UpcomingMovies.rawValue:
-            APICaller.shared.getUpcomingMovies { [weak self] result in
+            APICaller.shared.getHomeUpcomingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
@@ -168,7 +168,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             }
         case Sections.TopRated.rawValue:
-            APICaller.shared.getTopRated { [weak self] result in
+            APICaller.shared.getHomeTopRated { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)

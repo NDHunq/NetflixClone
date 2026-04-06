@@ -22,7 +22,9 @@ class APICaller {
     static let shared = APICaller()
     private init() {}
     
-    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+    // MARK: - Home APIs
+    
+    func getHomeTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .trendingMovies,
             responseType: TrendingTitleResponse.self
@@ -31,7 +33,7 @@ class APICaller {
         }
     }
     
-    func getTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void) {
+    func getHomeTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .trendingTV,
             responseType: TrendingTitleResponse.self
@@ -40,7 +42,7 @@ class APICaller {
         }
     }
     
-    func getPopularMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+    func getHomePopularMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .popularMovies,
             responseType: TrendingTitleResponse.self
@@ -49,7 +51,7 @@ class APICaller {
         }
     }
     
-    func getUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+    func getHomeUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .upcomingMovies,
             responseType: TrendingTitleResponse.self
@@ -58,9 +60,20 @@ class APICaller {
         }
     }
     
-    func getTopRated(completion: @escaping (Result<[Title], Error>) -> Void) {
+    func getHomeTopRated(completion: @escaping (Result<[Title], Error>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .topRatedMovies,
+            responseType: TrendingTitleResponse.self
+        ) { result in
+            completion(result.map(\.results).mapError { $0 as Error })
+        }
+    }
+    
+    // MARK: - Upcoming
+    
+    func getUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+        NetworkManager.shared.request(
+            endpoint: .upcomingMovies,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results).mapError { $0 as Error })

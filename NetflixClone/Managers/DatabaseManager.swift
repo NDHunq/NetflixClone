@@ -79,6 +79,22 @@ class DatabaseManager {
                           columns: ["section", "saved_at"],
                           ifNotExists: true)
         }
+        
+        migrator.registerMigration("v3_createUpcomingTitles") { db in
+            try db.create(table: "upcoming_title", ifNotExists: true) { t in
+                t.column("id", .integer).primaryKey()
+                t.column("media_type", .text)
+                t.column("original_name", .text)
+                t.column("original_title", .text)
+                t.column("poster_path", .text)
+                t.column("overview", .text)
+                t.column("vote_count", .integer)
+                t.column("release_date", .text)
+                t.column("vote_average", .double)
+                t.column("saved_at", .datetime)
+                    .defaults(to: Date())
+            }
+        }
 
         try migrator.migrate(dbQueue!)
     }
@@ -115,6 +131,41 @@ extension DatabaseManager {
             }
         } catch {
             print("[DatabaseManager] Lỗi fetch titles: \(error)")
+            return []
+        }
+    }
+    
+    // MARK: - Upcoming Titles Specific Table
+    
+    func saveUpcomingTitles(_ titles: [Title]) {
+        guard let dbQueue = dbQueue else { return }
+
+        do {
+            try dbQueue.write { db in
+                for title in titles {
+                    var record = UpcomingTitleRecord(from: title)
+                    try record.save(db)
+                }
+            }
+            print("[DatabaseManager] Đã lưu \(titles.count) phim vào bảng 'upcoming_title'")
+        } catch {
+            print("[DatabaseManager] Lỗi lưu upcoming titles: \(error)")
+        }
+    }
+
+    func fetchUpcomingTitles() -> [Title] {
+        guard let dbQueue = dbQueue else { return [] }
+
+        do {
+            return try dbQueue.read { db in
+                let records = try UpcomingTitleRecord
+                    .order(UpcomingTitleRecord.Columns.savedAt.desc)
+                    .fetchAll(db)
+
+                return records.map { $0.toTitle() }
+            }
+        } catch {
+            print("[DatabaseManager] Lỗi fetch upcoming titles: \(error)")
             return []
         }
     }
