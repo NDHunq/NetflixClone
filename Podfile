@@ -8,4 +8,5 @@ target 'NetflixClone' do
   # Pods for NetflixClone
   pod 'GRDB.swift/SQLCipher'
   pod 'SQLCipher', '~> 4.0'
+  pod 'Alamofire', '~> 5.0'
 end

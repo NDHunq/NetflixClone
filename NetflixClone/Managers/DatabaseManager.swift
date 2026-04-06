@@ -18,7 +18,7 @@ class DatabaseManager {
         do {
             try setupDatabase()
         } catch {
-            print("Database setup failed: \(error)")
+            print("[DatabaseManager] Database setup failed: \(error)")
         }
     }
 
@@ -32,7 +32,7 @@ class DatabaseManager {
         )
         let dbURL = documentsURL.appendingPathComponent("NetflixClone.sqlite")
 
-        print("Database path: \(dbURL.path)")
+        print("[DatabaseManager] Database path: \(dbURL.path)")
 
         var config = Configuration()
         config.prepareDatabase { db in
@@ -43,7 +43,7 @@ class DatabaseManager {
 
         try runMigrations()
 
-        print("Database ready (SQLCipher)")
+        print("[DatabaseManager] Database ready (SQLCipher)")
     }
 
 
@@ -83,9 +83,9 @@ extension DatabaseManager {
                     try record.save(db)
                 }
             }
-            print("Đã lưu \(titles.count) phim vào section '\(section)'")
+            print("[DatabaseManager] Đã lưu \(titles.count) phim vào section '\(section)'")
         } catch {
-            print("Lỗi lưu titles: \(error)")
+            print("[DatabaseManager] Lỗi lưu titles: \(error)")
         }
     }
 
@@ -102,7 +102,7 @@ extension DatabaseManager {
                 return records.map { $0.toTitle() }
             }
         } catch {
-            print("Lỗi fetch titles: \(error)")
+            print("[DatabaseManager] Lỗi fetch titles: \(error)")
             return []
         }
     }
@@ -115,7 +115,7 @@ extension DatabaseManager {
                 try TitleRecord.fetchAll(db)
             }
         } catch {
-            print("Lỗi fetch all: \(error)")
+            print("[DatabaseManager] Lỗi fetch all: \(error)")
             return []
         }
     }
@@ -142,7 +142,7 @@ extension DatabaseManager {
                     .deleteAll(db)
             }
         } catch {
-            print("Lỗi xoá: \(error)")
+            print("[DatabaseManager] Lỗi xoá: \(error)")
         }
     }
 
@@ -153,9 +153,9 @@ extension DatabaseManager {
             try dbQueue.write { db in
                 _ = try TitleRecord.deleteAll(db)
             }
-            print("Đã xoá toàn bộ database")
+            print("[DatabaseManager] Đã xoá toàn bộ database")
         } catch {
-            print("Lỗi xoá all: \(error)")
+            print("[DatabaseManager] Lỗi xoá all: \(error)")
         }
     }
 }

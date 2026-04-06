@@ -1,4 +1,5 @@
 PODS:
+  - Alamofire (5.11.1)
   - GRDB.swift/SQLCipher (6.24.1):
     - SQLCipher (>= 3.4.2)
   - SQLCipher (4.10.0):
@@ -8,18 +9,21 @@ PODS:
     - SQLCipher/common
 
 DEPENDENCIES:
+  - Alamofire (~> 5.0)
   - GRDB.swift/SQLCipher
   - SQLCipher (~> 4.0)
 
 SPEC REPOS:
   trunk:
+    - Alamofire
     - GRDB.swift
     - SQLCipher
 
 SPEC CHECKSUMS:
+  Alamofire: eec6cd8f73b242b59e34153a606a909eb9864b14
   GRDB.swift: 136dcb5d8dddca50aae3ba7d77475f79e7232cd8
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
 
-PODFILE CHECKSUM: 4646f22c559da396321cd73f287dc3780cb8f9e9
+PODFILE CHECKSUM: 023412168d955b2900cc396ee74f889416a4cd33
 
 COCOAPODS: 1.16.2
