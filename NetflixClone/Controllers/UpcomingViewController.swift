@@ -37,6 +37,19 @@ class UpcomingViewController: UIViewController {
     }
     
     private func fetchUpcoming() {
+        // BƯỚC 1: Load cache NGAY - không chờ API
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let cached = DatabaseManager.shared.fetchUpcomingTitles()
+            DispatchQueue.main.async {
+                if !cached.isEmpty {
+                    self?.titles = cached
+                    self?.upcomingTable.reloadData()
+                    print("[UpcomingVC] Cache loaded: \(cached.count) items")
+                }
+            }
+        }
+
+        // BƯỚC 2: Gọi API song song — khi về thì ghi đè
         APICaller.shared.getUpcomingMovies { [weak self] result in
             switch result {
             case .success(let titles):
@@ -48,19 +61,8 @@ class UpcomingViewController: UIViewController {
                     DatabaseManager.shared.saveUpcomingTitles(titles)
                 }
             case .failure(let error):
-                print(error.localizedDescription)
-                DispatchQueue.global(qos: .userInitiated).async {
-                    let cached = DatabaseManager.shared.fetchUpcomingTitles()
-                    DispatchQueue.main.async {
-                        if !cached.isEmpty {
-                            self?.titles = cached
-                            self?.upcomingTable.reloadData()
-                            print("Loaded \(cached.count) phim từ bảng upcoming_title cache")
-                        } else {
-                            print("Không có cache")
-                        }
-                    }
-                }
+                // Cache đã hiển thị từ bước 1 — không cần làm gì thêm
+                print("[UpcomingVC] API error (cache đang hiển thị): \(error.localizedDescription)")
             }
         }
     }

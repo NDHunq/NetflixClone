@@ -76,6 +76,18 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         }
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
+            // BƯỚC 1: Load cache ngay
+            DispatchQueue.global(qos: .userInitiated).async {
+                let cached = DatabaseManager.shared.fetchTitles(section: "trending_movies")
+                DispatchQueue.main.async {
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("[HomeVC] trending_movies cache: \(cached.count) items")
+                    }
+                }
+            }
+
+            // BƯỚC 2: Gọi API song song
             APICaller.shared.getHomeTrendingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
@@ -84,21 +96,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                         DatabaseManager.shared.saveTitles(titles, section: "trending_movies")
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let cached = DatabaseManager.shared.fetchTitles(section: "trending_movies")
-                        DispatchQueue.main.async {
-                            if !cached.isEmpty {
-                                cell.configure(with: cached)
-                                print("Loaded \(cached.count) phim từ cache")
-                            } else {
-                                print("Không có cache")
-                            }
-                        }
-                    }
+                    print("[HomeVC] trending_movies API error: \(error.localizedDescription)")
                 }
             }
         case Sections.TrendingTV.rawValue:
+            // BƯỚC 1: Load cache ngay
+            DispatchQueue.global(qos: .userInitiated).async {
+                let cached = DatabaseManager.shared.fetchTitles(section: "trending_tv")
+                DispatchQueue.main.async {
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("[HomeVC] trending_tv cache: \(cached.count) items")
+                    }
+                }
+            }
+
+            // BƯỚC 2: Gọi API song song
             APICaller.shared.getHomeTrendingTVs { [weak self] result in
                 switch result {
                 case .success(let titles):
@@ -107,21 +120,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                         DatabaseManager.shared.saveTitles(titles, section: "trending_tv")
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let cached = DatabaseManager.shared.fetchTitles(section: "trending_tv")
-                        DispatchQueue.main.async {
-                            if !cached.isEmpty {
-                                cell.configure(with: cached)
-                                print("Loaded \(cached.count) phim từ cache")
-                            } else {
-                                print("Không có cache")
-                            }
-                        }
-                    }
+                    print("[HomeVC] trending_tv API error: \(error.localizedDescription)")
                 }
             }
         case Sections.Popular.rawValue:
+            // BƯỚC 1: Load cache ngay
+            DispatchQueue.global(qos: .userInitiated).async {
+                let cached = DatabaseManager.shared.fetchTitles(section: "popular")
+                DispatchQueue.main.async {
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("[HomeVC] popular cache: \(cached.count) items")
+                    }
+                }
+            }
+
+            // BƯỚC 2: Gọi API song song
             APICaller.shared.getHomePopularMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
@@ -130,21 +144,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                         DatabaseManager.shared.saveTitles(titles, section: "popular")
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let cached = DatabaseManager.shared.fetchTitles(section: "popular")
-                        DispatchQueue.main.async {
-                            if !cached.isEmpty {
-                                cell.configure(with: cached)
-                                print("Loaded \(cached.count) phim từ cache")
-                            } else {
-                                print("Không có cache")
-                            }
-                        }
-                    }
+                    print("[HomeVC] popular API error: \(error.localizedDescription)")
                 }
             }
         case Sections.UpcomingMovies.rawValue:
+            // BƯỚC 1: Load cache ngay
+            DispatchQueue.global(qos: .userInitiated).async {
+                let cached = DatabaseManager.shared.fetchTitles(section: "upcoming")
+                DispatchQueue.main.async {
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("[HomeVC] upcoming cache: \(cached.count) items")
+                    }
+                }
+            }
+
+            // BƯỚC 2: Gọi API song song
             APICaller.shared.getHomeUpcomingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
@@ -153,21 +168,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                         DatabaseManager.shared.saveTitles(titles, section: "upcoming")
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let cached = DatabaseManager.shared.fetchTitles(section: "upcoming")
-                        DispatchQueue.main.async {
-                            if !cached.isEmpty {
-                                cell.configure(with: cached)
-                                print("Loaded \(cached.count) phim từ cache")
-                            } else {
-                                print("Không có cache")
-                            }
-                        }
-                    }
+                    print("[HomeVC] upcoming API error: \(error.localizedDescription)")
                 }
             }
         case Sections.TopRated.rawValue:
+            // BƯỚC 1: Load cache ngay
+            DispatchQueue.global(qos: .userInitiated).async {
+                let cached = DatabaseManager.shared.fetchTitles(section: "top_rated")
+                DispatchQueue.main.async {
+                    if !cached.isEmpty {
+                        cell.configure(with: cached)
+                        print("[HomeVC] top_rated cache: \(cached.count) items")
+                    }
+                }
+            }
+
+            // BƯỚC 2: Gọi API song song
             APICaller.shared.getHomeTopRated { [weak self] result in
                 switch result {
                 case .success(let titles):
@@ -176,18 +192,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                         DatabaseManager.shared.saveTitles(titles, section: "top_rated")
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        let cached = DatabaseManager.shared.fetchTitles(section: "top_rated")
-                        DispatchQueue.main.async {
-                            if !cached.isEmpty {
-                                cell.configure(with: cached)
-                                print("Loaded \(cached.count) phim từ cache")
-                            } else {
-                                print("Không có cache")
-                            }
-                        }
-                    }
+                    print("[HomeVC] top_rated API error: \(error.localizedDescription)")
                 }
             }
         default:
