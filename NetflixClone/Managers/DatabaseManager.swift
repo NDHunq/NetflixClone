@@ -67,6 +67,18 @@ class DatabaseManager {
                 t.uniqueKey(["id", "section"])
             }
         }
+        
+        migrator.registerMigration("v2_addIndexes") { db in
+            try db.create(index: "idx_title_section",
+                          on: "title",
+                          columns: ["section"],
+                          ifNotExists: true)
+
+            try db.create(index: "idx_title_section_saved_at",
+                          on: "title",
+                          columns: ["section", "saved_at"],
+                          ifNotExists: true)
+        }
 
         try migrator.migrate(dbQueue!)
     }

@@ -76,67 +76,118 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         }
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
-            APICaller.shared.getTrendingMovies { result in
+            APICaller.shared.getTrendingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    DatabaseManager.shared.saveTitles(titles, section: "trending_movies")
+                    DispatchQueue.global(qos: .utility).async {
+                        DatabaseManager.shared.saveTitles(titles, section: "trending_movies")
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
-                    let cached = DatabaseManager.shared.fetchTitles(section: "trending_movies")
-                    if !cached.isEmpty {
-                        cell.configure(with: cached)
-                        print("Loaded \(cached.count) phim từ cache")
-                    } else {
-                        print("empty")
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let cached = DatabaseManager.shared.fetchTitles(section: "trending_movies")
+                        DispatchQueue.main.async {
+                            if !cached.isEmpty {
+                                cell.configure(with: cached)
+                                print("Loaded \(cached.count) phim từ cache")
+                            } else {
+                                print("Không có cache")
+                            }
+                        }
                     }
                 }
             }
         case Sections.TrendingTV.rawValue:
-            APICaller.shared.getTrendingTVs { result in
+            APICaller.shared.getTrendingTVs { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    DatabaseManager.shared.saveTitles(titles, section: "trending_tv")
+                    DispatchQueue.global(qos: .utility).async {
+                        DatabaseManager.shared.saveTitles(titles, section: "trending_tv")
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
-                    let cached = DatabaseManager.shared.fetchTitles(section: "trending_tv")
-                    if !cached.isEmpty {
-                        cell.configure(with: cached)
-                        print("Loaded \(cached.count) phim từ cache")
-                    } else {
-                        print("empty")
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let cached = DatabaseManager.shared.fetchTitles(section: "trending_tv")
+                        DispatchQueue.main.async {
+                            if !cached.isEmpty {
+                                cell.configure(with: cached)
+                                print("Loaded \(cached.count) phim từ cache")
+                            } else {
+                                print("Không có cache")
+                            }
+                        }
                     }
                 }
             }
         case Sections.Popular.rawValue:
-            APICaller.shared.getPopularMovies { result in
+            APICaller.shared.getPopularMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    DatabaseManager.shared.saveTitles(titles, section: "popular")
+                    DispatchQueue.global(qos: .utility).async {
+                        DatabaseManager.shared.saveTitles(titles, section: "popular")
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let cached = DatabaseManager.shared.fetchTitles(section: "popular")
+                        DispatchQueue.main.async {
+                            if !cached.isEmpty {
+                                cell.configure(with: cached)
+                                print("Loaded \(cached.count) phim từ cache")
+                            } else {
+                                print("Không có cache")
+                            }
+                        }
+                    }
                 }
             }
         case Sections.UpcomingMovies.rawValue:
-            APICaller.shared.getUpcomingMovies { result in
+            APICaller.shared.getUpcomingMovies { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    DatabaseManager.shared.saveTitles(titles, section: "upcoming")
+                    DispatchQueue.global(qos: .utility).async {
+                        DatabaseManager.shared.saveTitles(titles, section: "upcoming")
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let cached = DatabaseManager.shared.fetchTitles(section: "upcoming")
+                        DispatchQueue.main.async {
+                            if !cached.isEmpty {
+                                cell.configure(with: cached)
+                                print("Loaded \(cached.count) phim từ cache")
+                            } else {
+                                print("Không có cache")
+                            }
+                        }
+                    }
                 }
             }
         case Sections.TopRated.rawValue:
-            APICaller.shared.getTopRated { result in
+            APICaller.shared.getTopRated { [weak self] result in
                 switch result {
                 case .success(let titles):
                     cell.configure(with: titles)
-                    DatabaseManager.shared.saveTitles(titles, section: "top_rated")
+                    DispatchQueue.global(qos: .utility).async {
+                        DatabaseManager.shared.saveTitles(titles, section: "top_rated")
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        let cached = DatabaseManager.shared.fetchTitles(section: "top_rated")
+                        DispatchQueue.main.async {
+                            if !cached.isEmpty {
+                                cell.configure(with: cached)
+                                print("Loaded \(cached.count) phim từ cache")
+                            } else {
+                                print("Không có cache")
+                            }
+                        }
+                    }
                 }
             }
         default:
