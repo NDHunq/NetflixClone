@@ -153,23 +153,6 @@ extension DatabaseManager {
         }
     }
 
-    func fetchUpcomingTitles() -> [Title] {
-        guard let dbQueue = dbQueue else { return [] }
-
-        do {
-            return try dbQueue.read { db in
-                let records = try UpcomingTitleRecord
-                    .order(UpcomingTitleRecord.Columns.savedAt.asc)
-                    .fetchAll(db)
-
-                return records.map { $0.toTitle() }
-            }
-        } catch {
-            print("[DatabaseManager] Lỗi fetch upcoming titles: \(error)")
-            return []
-        }
-    }
-    
     func fetchUpcomingTitles(limit: Int, offset: Int) -> [Title] {
         guard let dbQueue = dbQueue else { return [] }
 
@@ -188,55 +171,45 @@ extension DatabaseManager {
         }
     }
 
-    func fetchAllTitles() -> [TitleRecord] {
+    func fetchUpcomingTitlesByQuery(limit: Int, offset: Int) -> [Title] {
         guard let dbQueue = dbQueue else { return [] }
 
         do {
             return try dbQueue.read { db in
-                try TitleRecord.fetchAll(db)
+                let sql = "SELECT * FROM upcoming_title ORDER BY saved_at DESC LIMIT ? OFFSET ?"
+                let records = try UpcomingTitleRecord.fetchAll(db, sql: sql, arguments: [limit, offset])
+
+                return records.map { $0.toTitle() }
             }
         } catch {
-            print("[DatabaseManager] Lỗi fetch all: \(error)")
+            print("[DatabaseManager] Lỗi fetch upcoming titles paginated: \(error)")
             return []
         }
     }
 
-    func countAll() -> Int {
-        guard let dbQueue = dbQueue else { return 0 }
+    func searchTitlesByQuery(withKeyword keyword: String) -> [Title] {
+        guard let dbQueue = dbQueue else { return [] }
 
         do {
             return try dbQueue.read { db in
-                try TitleRecord.fetchCount(db)
+                let sql = """
+                    SELECT * FROM title 
+                    WHERE original_title LIKE ? OR original_name LIKE ? 
+                    ORDER BY saved_at DESC
+                """
+                let pattern = "%\(keyword)%"
+                
+                let records = try TitleRecord.fetchAll(
+                    db,
+                    sql: sql,
+                    arguments: [pattern, pattern]
+                )
+
+                return records.map { $0.toTitle() }
             }
         } catch {
-            return 0
-        }
-    }
-
-    func deleteTitles(section: String) {
-        guard let dbQueue = dbQueue else { return }
-
-        do {
-            try dbQueue.write { db in
-                _ = try TitleRecord
-                    .filter(TitleRecord.Columns.section == section)
-                    .deleteAll(db)
-            }
-        } catch {
-            print("[DatabaseManager] Lỗi xoá: \(error)")
-        }
-    }
-
-    func deleteAll() {
-        guard let dbQueue = dbQueue else { return }
-
-        do {
-            try dbQueue.write { db in
-                _ = try TitleRecord.deleteAll(db)
-            }
-            print("[DatabaseManager] Đã xoá toàn bộ database")
-        } catch {
-            print("[DatabaseManager] Lỗi xoá all: \(error)")
+            print("[DatabaseManager] Lỗi search titles bằng SQL: \(error)")
+            return []
         }
     }
 }
