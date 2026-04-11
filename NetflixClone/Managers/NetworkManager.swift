@@ -8,6 +8,19 @@
 import Foundation
 import Alamofire
 
+class NetworkInterceptor: RequestInterceptor {
+    let retryLimit = 3
+    let retryDelay: TimeInterval = 2
+
+    func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+        if request.retryCount < retryLimit {
+            completion(.retryWithDelay(retryDelay))
+        } else {
+            completion(.doNotRetry)
+        }
+    }
+}
+
 class NetworkManager {
     static let shared = NetworkManager()
     private let session: Session
@@ -18,7 +31,7 @@ class NetworkManager {
         config.timeoutIntervalForResource = 7
         config.waitsForConnectivity = true
         
-        self.session = Session(configuration: config)
+        self.session = Session(configuration: config, interceptor: NetworkInterceptor())
     }
     
     func request<T: Decodable>(
@@ -27,12 +40,10 @@ class NetworkManager {
         completion: @escaping (Result<T, NetworkError>) -> Void
     ){
         let url = endpoint.fullURL
-#if DEBUG
         print("[NetworkManager] → \(endpoint.method.rawValue.uppercased()) \(url)")
         if let params = endpoint.parameters, !params.isEmpty {
             print("   Params: \(params)")
         }
-#endif
         
         session.request(
             url,
@@ -41,14 +52,10 @@ class NetworkManager {
             encoding: URLEncoding.default,
             headers: endpoint.headers
         )
-        .validate(statusCode: 200..<300)       // Tự động fail nếu HTTP status không phải 2xx
+        .validate(statusCode: 200..<300)
         .responseDecodable(of: responseType) { response in
-            
-            // Log response
-#if DEBUG
             let statusCode = response.response?.statusCode ?? 0
             print("   ← [\(statusCode)] \(url)")
-#endif
             
             switch response.result {
             case .success(let decodedData):
@@ -56,9 +63,7 @@ class NetworkManager {
                 
             case .failure(let afError):
                 let networkError = NetworkManager.mapError(afError, response: response)
-#if DEBUG
                 print("   ❌ Error: \(networkError.localizedDescription)")
-#endif
                 completion(.failure(networkError))
             }
         }

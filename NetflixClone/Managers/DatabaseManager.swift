@@ -135,7 +135,7 @@ extension DatabaseManager {
         }
     }
     
-    // MARK: - Upcoming Titles Specific Table
+    // MARK: - Upcoming Titles
     
     func saveUpcomingTitles(_ titles: [Title]) {
         guard let dbQueue = dbQueue else { return }
@@ -159,13 +159,31 @@ extension DatabaseManager {
         do {
             return try dbQueue.read { db in
                 let records = try UpcomingTitleRecord
-                    .order(UpcomingTitleRecord.Columns.savedAt.desc)
+                    .order(UpcomingTitleRecord.Columns.savedAt.asc)
                     .fetchAll(db)
 
                 return records.map { $0.toTitle() }
             }
         } catch {
             print("[DatabaseManager] Lỗi fetch upcoming titles: \(error)")
+            return []
+        }
+    }
+    
+    func fetchUpcomingTitles(limit: Int, offset: Int) -> [Title] {
+        guard let dbQueue = dbQueue else { return [] }
+
+        do {
+            return try dbQueue.read { db in
+                let records = try UpcomingTitleRecord
+                    .order(UpcomingTitleRecord.Columns.savedAt.desc)
+                    .limit(limit, offset: offset)
+                    .fetchAll(db)
+
+                return records.map { $0.toTitle() }
+            }
+        } catch {
+            print("[DatabaseManager] Lỗi fetch upcoming titles paginated: \(error)")
             return []
         }
     }

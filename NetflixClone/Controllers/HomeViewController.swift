@@ -46,8 +46,8 @@ class HomeViewController: UIViewController {
     
     private func configureNavBar() {
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: UIImage(systemName: "person"), style:.done, target: self, action: nil),
-            UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style:.done, target: self, action: nil)
+            UIBarButtonItem(image: UIImage(systemName: "person"), style:.plain, target: self, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style:.plain, target: self, action: nil)
         ]
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.backgroundColor = .clear

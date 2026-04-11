@@ -9,6 +9,11 @@ import UIKit
 
 class UpcomingViewController: UIViewController {
     
+    private let pageSize = 30
+    private var currentOffset = 0
+    private var isLoading = false
+    private var hasMore = true
+    
     private var titles: [Title] = [Title]()
     
     private let upcomingTable: UITableView = {
@@ -28,7 +33,7 @@ class UpcomingViewController: UIViewController {
         upcomingTable.delegate = self
         upcomingTable.dataSource = self
         
-        fetchUpcoming()
+        fetchInitialData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -36,33 +41,71 @@ class UpcomingViewController: UIViewController {
         upcomingTable.frame = view.bounds
     }
     
-    private func fetchUpcoming() {
-        // BƯỚC 1: Load cache NGAY - không chờ API
+    private func fetchInitialData() {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            let cached = DatabaseManager.shared.fetchUpcomingTitles()
+            guard let self = self else { return }
+            let cachedTitles = DatabaseManager.shared.fetchUpcomingTitles(limit: self.pageSize, offset: 0)
             DispatchQueue.main.async {
-                if !cached.isEmpty {
-                    self?.titles = cached
-                    self?.upcomingTable.reloadData()
-                    print("[UpcomingVC] Cache loaded: \(cached.count) items")
+                if !cachedTitles.isEmpty && self.titles.isEmpty {
+                    self.titles = cachedTitles
+                    self.currentOffset = cachedTitles.count
+                    self.upcomingTable.reloadData()
+                    print("[UpcomingVC] Đã load \(cachedTitles.count) items từ SQLite Cache")
                 }
             }
         }
-
-        // BƯỚC 2: Gọi API song song — khi về thì ghi đè
+        
         APICaller.shared.getUpcomingMovies { [weak self] result in
+            guard let self = self else { return }
             switch result {
-            case .success(let titles):
-                self?.titles = titles
-                DispatchQueue.main.async {
-                    self?.upcomingTable.reloadData()
-                }
+            case .success(let apiTitles):
                 DispatchQueue.global(qos: .utility).async {
-                    DatabaseManager.shared.saveUpcomingTitles(titles)
+                    DatabaseManager.shared.saveUpcomingTitles(apiTitles)
                 }
+                
+                DispatchQueue.main.async {
+                    self.titles = apiTitles
+                    self.currentOffset = apiTitles.count
+                    self.hasMore = true
+                    self.upcomingTable.reloadData()
+                    print("[UpcomingVC] Đã load \(apiTitles.count) items từ API và cập nhật UI")
+                }
+                
             case .failure(let error):
-                // Cache đã hiển thị từ bước 1 — không cần làm gì thêm
-                print("[UpcomingVC] API error (cache đang hiển thị): \(error.localizedDescription)")
+                print("[UpcomingVC] API error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func loadNextPage() {
+        guard !isLoading, hasMore else { return }
+        isLoading = true
+        let offset = currentOffset
+        let limit = pageSize
+        
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            let newTitles = DatabaseManager.shared.fetchUpcomingTitles(limit: limit, offset: offset)
+            DispatchQueue.main.async {
+                self.isLoading = false
+                if newTitles.isEmpty {
+                    self.hasMore = false
+                    print("[UpcomingVC] Đã load hết tất cả records")
+                    return
+                }
+                if newTitles.count < self.pageSize {
+                    self.hasMore = false
+                }
+                let startIndex = self.titles.count
+                self.titles.append(contentsOf: newTitles)
+                self.currentOffset += newTitles.count
+                
+                let newIndexPaths = (startIndex..<self.titles.count).map {
+                    IndexPath(row: $0, section: 0)
+                }
+                
+                self.upcomingTable.insertRows(at: newIndexPaths, with: .none)
+                print("[UpcomingVC] Loaded \(newTitles.count) items (offset: \(offset)), total: \(self.titles.count)")
             }
         }
     }
@@ -89,5 +132,12 @@ extension UpcomingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 150
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let triggerRow = titles.count - 10
+        if indexPath.row >= triggerRow {
+            loadNextPage()
+        }
     }
 }
