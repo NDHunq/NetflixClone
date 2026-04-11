@@ -9,8 +9,8 @@ import Foundation
 import Alamofire
 
 final class NetworkInterceptor: RequestInterceptor {
-    let retryLimit = 3
-    let retryDelay: TimeInterval = 2
+    private let retryLimit = 3
+    private let retryDelay: TimeInterval = 2
     
     func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         let method = urlRequest.httpMethod ?? "UNKNOWN"

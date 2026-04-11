@@ -55,7 +55,7 @@ class UpcomingViewController: UIViewController {
             }
         }
         
-        APICaller.shared.getUpcomingMovies { [weak self] result in
+        APICaller.shared.getHomeUpcomingMovies { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let apiTitles):
