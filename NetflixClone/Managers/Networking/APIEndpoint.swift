@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-private enum APIConstants {
+enum APIConstants {
     static let apiKey   = "ac90e227bedf46c08087b19100afc0f1"
     static let baseURL  = "https://api.themoviedb.org/3"
     static let language = "en-US"
@@ -42,31 +42,19 @@ extension APIEndpoint {
         }
     }
     
-    var method: HTTPMethod {
-        return .get
-    }
-    
     var fullURL: String {
         return APIConstants.baseURL + path
     }
     
     var parameters: Parameters? {
-        var params: Parameters = [
-            "api_key": APIConstants.apiKey,
-            "language": APIConstants.language
-        ]
-        
         switch self {
         case .searchMovies(let query):
-            params["query"] = query
-            params["page"] = 1
+            return ["query": query, "page": 1]
         case .popularMovies, .upcomingMovies, .topRatedMovies:
-            params["page"] = 1
+            return ["page": 1]
         default:
-            break
+            return nil
         }
-        
-        return params
     }
     
     var headers: HTTPHeaders {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Alamofire
 
 class APICaller {
     
@@ -17,6 +18,7 @@ class APICaller {
     func getHomeTrendingMovies(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .trendingMovies,
+            method: .get,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results))
@@ -26,6 +28,7 @@ class APICaller {
     func getHomeTrendingTVs(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .trendingTV,
+            method: .get,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results))
@@ -35,6 +38,7 @@ class APICaller {
     func getHomePopularMovies(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .popularMovies,
+            method: .get,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results))
@@ -44,6 +48,7 @@ class APICaller {
     func getHomeUpcomingMovies(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .upcomingMovies,
+            method: .get,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results))
@@ -53,6 +58,7 @@ class APICaller {
     func getHomeTopRated(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .topRatedMovies,
+            method: .get,
             responseType: TrendingTitleResponse.self
         ) { result in
             completion(result.map(\.results))

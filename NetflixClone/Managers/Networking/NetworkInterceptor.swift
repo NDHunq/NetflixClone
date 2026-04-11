@@ -13,10 +13,23 @@ final class NetworkInterceptor: RequestInterceptor {
     private let retryDelay: TimeInterval = 2
     
     func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        let method = urlRequest.httpMethod ?? "UNKNOWN"
-        let url = urlRequest.url?.absoluteString ?? "unknown URL"
-        print("[Interceptor][Adapt] \(method) \(url)")
-        completion(.success(urlRequest))
+        var request = urlRequest
+        
+        // Inject common params (api_key, language) vào mọi request
+        if let url = request.url,
+           var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            var queryItems = components.queryItems ?? []
+            
+            // Xóa đi name cũ nếu đã có (tránh duplicate khi hàm adapt chạy nhiều lần lúc retry)
+            queryItems.removeAll { $0.name == "api_key" || $0.name == "language" }
+            
+            queryItems.append(URLQueryItem(name: "api_key", value: APIConstants.apiKey))
+            queryItems.append(URLQueryItem(name: "language", value: APIConstants.language))
+            components.queryItems = queryItems
+            request.url = components.url
+        }
+        print("[Interceptor][Adapt] \(request.httpMethod ?? "unknown") \(request.url?.absoluteString ?? "unknown")")
+        completion(.success(request))
     }
 
     func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
