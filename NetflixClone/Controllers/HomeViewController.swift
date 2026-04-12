@@ -74,6 +74,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.indentifier, for: indexPath) as? CollectionViewTableViewCell else {
             return UITableViewCell()
         }
+        cell.delegate = self
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
             // BƯỚC 1: Load cache ngay
@@ -219,4 +220,18 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
     }
     
+}
+
+extension HomeViewController: CollectionViewTableViewCellDelegate {
+    
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, movieId: Int) {
+        // Khởi tạo VC từ XIB bằng nibName
+        let detailVC = MovieDetailViewController(
+            nibName: "MovieDetailViewController",
+            bundle: nil
+        )
+        detailVC.configure(with: movieId)
+        detailVC.hidesBottomBarWhenPushed = true 
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
 }

@@ -12,9 +12,7 @@ class APICaller {
     
     static let shared = APICaller()
     private init() {}
-    
-    // MARK: - Home APIs
-    
+        
     func getHomeTrendingMovies(completion: @escaping (Result<[Title], NetworkError>) -> Void) {
         NetworkManager.shared.request(
             endpoint: .trendingMovies,
@@ -64,4 +62,34 @@ class APICaller {
             completion(result.map(\.results))
         }
     }
+    
+    func getMovieDetail(movieId: Int, completion: @escaping (Result<MovieDetail, NetworkError>) -> Void) {
+            NetworkManager.shared.request(
+                endpoint: .movieDetail(movieId: movieId),
+                method: .get,
+                responseType: MovieDetail.self
+            ) { result in
+                completion(result)
+            }
+        }
+        
+        func getMovieCredits(movieId: Int, completion: @escaping (Result<[CastMember], NetworkError>) -> Void) {
+            NetworkManager.shared.request(
+                endpoint: .movieCredits(movieId: movieId),
+                method: .get,
+                responseType: MovieCreditsResponse.self
+            ) { result in
+                completion(result.map(\.cast))
+            }
+        }
+        
+        func getMovieVideos(movieId: Int, completion: @escaping (Result<[MovieVideo], NetworkError>) -> Void) {
+            NetworkManager.shared.request(
+                endpoint: .movieVideos(movieId: movieId),
+                method: .get,
+                responseType: MovieVideosResponse.self
+            ) { result in
+                completion(result.map(\.results))
+            }
+        }
 }

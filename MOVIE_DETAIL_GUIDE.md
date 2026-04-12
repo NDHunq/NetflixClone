@@ -1183,7 +1183,6 @@ Mở `MovieDetailViewController.xib`:
    > Dùng Superview thay Safe Area để TableView trải full màn hình — backdrop image sẽ chui under status bar, tạo hiệu ứng immersive giống Netflix thật.
 
 3. Attributes Inspector:
-   - Style: **Grouped** (để có spacing giữa các section)
    - Separator: **None** (background cells riêng thì không cần đường kẻ)
    - Background: **System Background Color**
 
@@ -1554,6 +1553,7 @@ extension HomeViewController: CollectionViewTableViewCellDelegate {
             bundle: nil
         )
         detailVC.configure(with: movieId)
+        detailVC.hidesBottomBarWhenPushed = true 
         navigationController?.pushViewController(detailVC, animated: true)
     }
 }

@@ -7,10 +7,15 @@
 
 import UIKit
 
+protocol CollectionViewTableViewCellDelegate: AnyObject {
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, movieId: Int)
+}
+
 class CollectionViewTableViewCell: UITableViewCell{
   
     static let indentifier = "CollectionViewTableViewCell"
     private var titles: [Title] = [Title]()
+    weak var delegate: CollectionViewTableViewCellDelegate?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -64,5 +69,16 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
 
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            collectionView.deselectItem(at: indexPath, animated: true)
+            
+            let title = titles[indexPath.row]
+            let movieId = title.id
+            
+            print("[CollectionCell] Tapped: \(title.original_title ?? title.original_name ?? "Unknown") (id: \(movieId))")
+            
+            delegate?.collectionViewTableViewCellDidTapCell(self, movieId: movieId)
+        }
     
 }

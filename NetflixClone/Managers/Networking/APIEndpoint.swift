@@ -27,6 +27,9 @@ enum APIEndpoint {
     
     // Search
     case searchMovies(query: String)        // GET /search/movie?query=...
+    case movieDetail(movieId: Int)          // GET /movie/{movie_id}
+    case movieCredits(movieId: Int)         // GET /movie/{movie_id}/credits
+    case movieVideos(movieId: Int)          // GET /movie/{movie_id}/videos
 }
 
 extension APIEndpoint {
@@ -39,6 +42,9 @@ extension APIEndpoint {
         case .upcomingMovies:           return "/movie/upcoming"
         case .topRatedMovies:           return "/movie/top_rated"
         case .searchMovies:             return "/search/movie"
+        case .movieDetail(let movieId):  return "/movie/\(movieId)"
+        case .movieCredits(let movieId): return "/movie/\(movieId)/credits"
+        case .movieVideos(let movieId):  return "/movie/\(movieId)/videos"
         }
     }
     
