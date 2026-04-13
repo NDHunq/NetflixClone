@@ -8,9 +8,9 @@
 import UIKit
 import SDWebImage
 
-class MovieBackdropCell: UITableViewCell {
+class MovieBackdropTableViewCell: UITableViewCell {
     
-    static let identifier = "MovieBackdropCell"
+    static let identifier = "MovieBackdropTableViewCell"
     
     @IBOutlet weak var backdropImageView: UIImageView!
     @IBOutlet weak var gradientView: UIView!

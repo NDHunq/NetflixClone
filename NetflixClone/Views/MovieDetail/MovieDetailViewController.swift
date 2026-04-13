@@ -37,20 +37,20 @@ class MovieDetailViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(
-            UINib(nibName: "MovieBackdropCell", bundle: nil),
-            forCellReuseIdentifier: MovieBackdropCell.identifier
+            UINib(nibName: "MovieBackdropTableViewCell", bundle: nil),
+            forCellReuseIdentifier: MovieBackdropTableViewCell.identifier
         )
         tableView.register(
-            UINib(nibName: "MovieActionCell", bundle: nil),
-            forCellReuseIdentifier: MovieActionCell.identifier
+            UINib(nibName: "MovieActionTableViewCell", bundle: nil),
+            forCellReuseIdentifier: MovieActionTableViewCell.identifier
         )
         tableView.register(
-            UINib(nibName: "MovieOverviewCell", bundle: nil),
-            forCellReuseIdentifier: MovieOverviewCell.identifier
+            UINib(nibName: "MovieOverviewTableViewCell", bundle: nil),
+            forCellReuseIdentifier: MovieOverviewTableViewCell.identifier
         )
         tableView.register(
-            UINib(nibName: "MovieCastCell", bundle: nil),
-            forCellReuseIdentifier: MovieCastCell.identifier
+            UINib(nibName: "MovieCastTableViewCell", bundle: nil),
+            forCellReuseIdentifier: MovieCastTableViewCell.identifier
         )
         
         tableView.estimatedRowHeight = 100
@@ -136,9 +136,9 @@ extension MovieDetailViewController: UITableViewDataSource {
         switch section {
         case .backdrop:
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieBackdropCell.identifier,
+                withIdentifier: MovieBackdropTableViewCell.identifier,
                 for: indexPath
-            ) as! MovieBackdropCell
+            ) as! MovieBackdropTableViewCell
             
             if let detail = movieDetail {
                 cell.configure(with: detail)
@@ -147,9 +147,9 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .actions:
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieActionCell.identifier,
+                withIdentifier: MovieActionTableViewCell.identifier,
                 for: indexPath
-            ) as! MovieActionCell
+            ) as! MovieActionTableViewCell
             
             cell.delegate = self
             cell.configure(hasTrailer: trailerKey != nil)
@@ -157,18 +157,18 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .overview:
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieOverviewCell.identifier,
+                withIdentifier: MovieOverviewTableViewCell.identifier,
                 for: indexPath
-            ) as! MovieOverviewCell
+            ) as! MovieOverviewTableViewCell
             
             cell.configure(with: movieDetail?.overview)
             return cell
             
         case .cast:
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieCastCell.identifier,
+                withIdentifier: MovieCastTableViewCell.identifier,
                 for: indexPath
-            ) as! MovieCastCell
+            ) as! MovieCastTableViewCell
             
             cell.configure(with: castMembers)
             return cell
@@ -185,7 +185,7 @@ extension MovieDetailViewController: UITableViewDelegate {
 
 extension MovieDetailViewController: MovieActionCellDelegate {
     
-    func movieActionCellDidTapPlayTrailer(_ cell: MovieActionCell) {
+    func movieActionCellDidTapPlayTrailer(_ cell: MovieActionTableViewCell) {
         guard let key = trailerKey,
               let url = URL(string: "https://www.youtube.com/watch?v=\(key)") else {
             print("[MovieDetailVC] No trailer available")
@@ -194,7 +194,7 @@ extension MovieDetailViewController: MovieActionCellDelegate {
         UIApplication.shared.open(url)
     }
     
-    func movieActionCellDidTapDownload(_ cell: MovieActionCell) {
+    func movieActionCellDidTapDownload(_ cell: MovieActionTableViewCell) {
         // TODO: Implement download feature
         print("[MovieDetailVC] Download tapped — chưa implement")
     }

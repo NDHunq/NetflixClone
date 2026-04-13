@@ -8,13 +8,13 @@
 import UIKit
 
 protocol MovieActionCellDelegate: AnyObject {
-    func movieActionCellDidTapPlayTrailer(_ cell: MovieActionCell)
-    func movieActionCellDidTapDownload(_ cell: MovieActionCell)
+    func movieActionCellDidTapPlayTrailer(_ cell: MovieActionTableViewCell)
+    func movieActionCellDidTapDownload(_ cell: MovieActionTableViewCell)
 }
 
-class MovieActionCell: UITableViewCell {
+class MovieActionTableViewCell: UITableViewCell {
     
-    static let identifier = "MovieActionCell"
+    static let identifier = "MovieActionTableViewCell"
     weak var delegate: MovieActionCellDelegate?
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var downloadButton: UIButton!

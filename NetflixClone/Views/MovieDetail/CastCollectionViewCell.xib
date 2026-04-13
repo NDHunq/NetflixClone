@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="pur-Lp-GpO" customClass="CastCollectionViewCell" customModule="NetflixClone" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="103" height="155"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="kTc-67-4To">
+                <rect key="frame" x="0.0" y="0.0" width="103" height="155"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qof-cs-gB4">
+                        <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="qof-cs-gB4" secondAttribute="height" multiplier="1:1" id="VPE-56-DLS"/>
+                            <constraint firstAttribute="width" constant="100" id="fEL-7D-ACe"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MQP-BA-4km">
+                        <rect key="frame" x="0.0" y="116" width="36" height="23"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="MQP-BA-4km" secondAttribute="trailing" id="6ZF-uz-epB"/>
+                    <constraint firstItem="qof-cs-gB4" firstAttribute="top" secondItem="kTc-67-4To" secondAttribute="top" id="Ftw-cO-F7J"/>
+                    <constraint firstAttribute="trailing" secondItem="qof-cs-gB4" secondAttribute="trailing" id="NpX-nj-tNr"/>
+                    <constraint firstAttribute="bottom" secondItem="MQP-BA-4km" secondAttribute="bottom" constant="16" id="VjC-vw-cDb"/>
+                    <constraint firstItem="MQP-BA-4km" firstAttribute="top" secondItem="qof-cs-gB4" secondAttribute="bottom" constant="16" id="dqx-NJ-kpx"/>
+                    <constraint firstItem="qof-cs-gB4" firstAttribute="leading" secondItem="kTc-67-4To" secondAttribute="leading" id="i9g-Ty-F4q"/>
+                    <constraint firstItem="MQP-BA-4km" firstAttribute="leading" secondItem="kTc-67-4To" secondAttribute="leading" id="q6Q-fr-L81"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="103" height="155"/>
+            <connections>
+                <outlet property="castImageView" destination="qof-cs-gB4" id="Lxz-Cq-6Id"/>
+                <outlet property="castNameLabel" destination="MQP-BA-4km" id="syv-3U-v2U"/>
+            </connections>
+            <point key="canvasLocation" x="191.6030534351145" y="79.929577464788736"/>
+        </collectionViewCell>
+    </objects>
+</document>

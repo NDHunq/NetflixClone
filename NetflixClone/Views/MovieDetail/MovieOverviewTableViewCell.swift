@@ -7,9 +7,9 @@
 
 import UIKit
 
-class MovieOverviewCell: UITableViewCell {
+class MovieOverviewTableViewCell: UITableViewCell {
     
-    static let identifier = "MovieOverviewCell"
+    static let identifier = "MovieOverviewTableViewCell"
     @IBOutlet weak var headerLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     
