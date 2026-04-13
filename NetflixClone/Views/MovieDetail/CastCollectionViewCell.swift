@@ -23,7 +23,7 @@ class CastCollectionViewCell: UICollectionViewCell {
 func configure(profilePath: String?, castName: String) {
     let placeholder = UIImage(named: "avt_placeholder")
     if let path = profilePath {
-        let url = URL(string: "https://image.tmdb.org/t/p/w780\(path)")
+        let url = URL(string: "https://image.tmdb.org/t/p/w500\(path)")
         castImageView.sd_setImage(with: url, placeholderImage: placeholder)
     } else {
         castImageView.image = placeholder
