@@ -19,12 +19,10 @@ class MovieCastCell: UITableViewCell {
     }
     
     func configure(with cast: [CastMember]) {
-        // Lấy tối đa 10 diễn viên, sắp xếp theo thứ tự xuất hiện
         let topCast = cast
             .sorted { ($0.order ?? 999) < ($1.order ?? 999) }
             .prefix(10)
         
-        // Format: "Actor Name as Character"
         let castText = topCast
             .map { member in
                 if let character = member.character, !character.isEmpty {
@@ -40,7 +38,7 @@ class MovieCastCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
-        // Configure the view for the selected state
     }
     
 }
+ 

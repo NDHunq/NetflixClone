@@ -26,24 +26,18 @@ class MovieBackdropCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        // Gradient cần update frame khi cell thay đổi kích thước
         gradientView.layer.sublayers?
             .first(where: { $0 is CAGradientLayer })?
             .frame = gradientView.bounds
     }
-    
-    // MARK: - Setup
-    
+        
     private func setupUI() {
-        // Poster corner radius (không set được trong XIB)
         posterImageView.layer.cornerRadius = 8
         posterImageView.clipsToBounds = true
         
-        // Background trong suốt
         backgroundColor = .clear
         selectionStyle = .none
         
-        // Gradient overlay
         addGradient()
     }
     
@@ -59,22 +53,18 @@ class MovieBackdropCell: UITableViewCell {
     }
     
     func configure(with detail: MovieDetail) {
-        // Title
         titleLabel.text = detail.title ?? detail.original_title ?? "Unknown"
         
-        // Backdrop
         if let backdropPath = detail.backdrop_path {
             let url = URL(string: "https://image.tmdb.org/t/p/w780\(backdropPath)")
             backdropImageView.sd_setImage(with: url)
         }
         
-        // Poster
         if let posterPath = detail.poster_path {
             let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
             posterImageView.sd_setImage(with: url)
         }
         
-        // Meta: ⭐ 8.4 · 2h19m · 2024
         var metaParts: [String] = []
         if let vote = detail.vote_average {
             metaParts.append("⭐ \(String(format: "%.1f", vote))")
@@ -89,7 +79,6 @@ class MovieBackdropCell: UITableViewCell {
         }
         metaLabel.text = metaParts.joined(separator: " · ")
         
-        // Genres
         if let genres = detail.genres {
             genreLabel.text = genres.map(\.name).joined(separator: ", ")
         } else {

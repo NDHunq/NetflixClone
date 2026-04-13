@@ -36,7 +36,6 @@ class MovieDetailViewController: UIViewController {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        // Đăng ký 4 cell XIB bằng UINib
         tableView.register(
             UINib(nibName: "MovieBackdropCell", bundle: nil),
             forCellReuseIdentifier: MovieBackdropCell.identifier
@@ -54,14 +53,9 @@ class MovieDetailViewController: UIViewController {
             forCellReuseIdentifier: MovieCastCell.identifier
         )
         
-        // Self-sizing cells
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableView.automaticDimension
-        
-        // Ẩn separator
         tableView.separatorStyle = .none
-        
-        // Cho phép table view scroll under navigation bar
         tableView.contentInsetAdjustmentBehavior = .never
     }
     private func fetchAllData() {
@@ -77,7 +71,6 @@ class MovieDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self?.movieDetail = detail
                     self?.navigationItem.title = detail.title
-                    // Reload backdrop + overview sections
                     self?.tableView.reloadSections(
                         IndexSet([DetailSection.backdrop.rawValue, DetailSection.overview.rawValue]),
                         with: .automatic
@@ -110,7 +103,6 @@ class MovieDetailViewController: UIViewController {
         APICaller.shared.getMovieVideos(movieId: movieId) { [weak self] result in
             switch result {
             case .success(let videos):
-                // Lọc trailer YouTube đầu tiên
                 let trailer = videos.first { $0.type == "Trailer" && $0.site == "YouTube" }
                 DispatchQueue.main.async {
                     self?.trailerKey = trailer?.key
@@ -129,11 +121,11 @@ class MovieDetailViewController: UIViewController {
 extension MovieDetailViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return DetailSection.allCases.count  // 4 sections
+        return DetailSection.allCases.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1  // mỗi section chỉ có 1 row
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -159,7 +151,7 @@ extension MovieDetailViewController: UITableViewDataSource {
                 for: indexPath
             ) as! MovieActionCell
             
-            cell.delegate = self  // để nhận sự kiện tap button
+            cell.delegate = self
             cell.configure(hasTrailer: trailerKey != nil)
             return cell
             
@@ -183,8 +175,6 @@ extension MovieDetailViewController: UITableViewDataSource {
         }
     }
 }
-
-// MARK: - UITableViewDelegate
 
 extension MovieDetailViewController: UITableViewDelegate {
     
