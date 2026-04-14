@@ -71,6 +71,7 @@ class MovieDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self?.movieDetail = detail
                     self?.navigationItem.title = detail.title
+                    self?.navigationItem.largeTitleDisplayMode = .never
                     self?.tableView.reloadSections(
                         IndexSet([DetailSection.backdrop.rawValue, DetailSection.overview.rawValue]),
                         with: .automatic

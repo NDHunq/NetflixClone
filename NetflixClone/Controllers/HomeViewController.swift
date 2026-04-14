@@ -36,26 +36,43 @@ class HomeViewController: UIViewController {
         
         configureNavBar()
         
-        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
+        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 550))
         homeFeedTable.tableHeaderView = headerView
-
+        homeFeedTable.contentInsetAdjustmentBehavior = .never
+        
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
             self?.homeFeedTable.reloadData()
         }
     }
     
     private func configureNavBar() {
+        
+        let logoImageView = UIImageView(image: UIImage(named: "netflixLogo"))
+        logoImageView.contentMode = .scaleAspectFit
+        let imageWidth: CGFloat = 35
+        let imageHeight: CGFloat = 35
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: imageWidth, height: imageHeight))
+        logoImageView.frame = containerView.bounds
+        containerView.addSubview(logoImageView)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: containerView)
+        
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: UIImage(systemName: "person"), style:.plain, target: self, action: nil),
             UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style:.plain, target: self, action: nil)
         ]
+        
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.backgroundColor = .clear
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        homeFeedTable.frame = view.bounds
+        homeFeedTable.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: view.bounds.height - 55
+        )
     }
 
 }

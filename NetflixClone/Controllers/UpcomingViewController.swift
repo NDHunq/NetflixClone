@@ -140,4 +140,15 @@ extension UpcomingViewController: UITableViewDelegate, UITableViewDataSource {
             loadNextPage()
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let detailVC = MovieDetailViewController(
+            nibName: "MovieDetailViewController",
+            bundle: nil
+        )
+        let movieId = titles[indexPath.row].id
+        detailVC.configure(with: movieId)
+        detailVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
 }
