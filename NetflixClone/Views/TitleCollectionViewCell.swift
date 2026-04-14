@@ -13,7 +13,6 @@ class TitleCollectionViewCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Những config không làm được trong XIB thì làm ở đây
         posterImageView.clipsToBounds = true
     }
     

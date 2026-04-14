@@ -8,9 +8,9 @@
 import UIKit
 import SDWebImage
 
-class TitleTableViewCell: UITableViewCell {
+class UpcomingMovieTableViewCell: UITableViewCell {
     
-    static let identifier = "TitleTableViewCell"
+    static let identifier = "UpcomingMovieTableViewCell"
     
     private let titlesPosterUIImageView: UIImageView = {
         let imageView = UIImageView()
