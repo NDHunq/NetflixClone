@@ -15,9 +15,11 @@
 3. [BƯỚC 1 — Cài đặt SDWebImage (CocoaPods)](#3-bước-1--cài-đặt-sdwebimage-cocoapods)
 4. [BƯỚC 2 — Thêm file GIF Animation vào project](#4-bước-2--thêm-file-gif-animation-vào-project)
 5. [BƯỚC 3 — Tạo SplashViewController (XIB)](#5-bước-3--tạo-splashviewcontroller-xib)
-6. [BƯỚC 4 — Tạo LoginViewController (XIB)](#6-bước-4--tạo-loginviewcontroller-xib)
-7. [BƯỚC 5 — Cập nhật SceneDelegate để bắt đầu từ Splash](#7-bước-5--cập-nhật-scenedelegate-để-bắt-đầu-từ-splash)
-8. [Tổng kết & Checklist](#8-tổng-kết--checklist)
+6. [BƯỚC 4 — Tạo NetflixTextField (Component tái sử dụng)](#6-bước-4--tạo-netflixtextfield-component-tái-sử-dụng)
+7. [BƯỚC 5 — Tạo SocialSignInButton (Component tái sử dụng)](#7-bước-5--tạo-socialsigninbutton-component-tái-sử-dụng)
+8. [BƯỚC 6 — Tạo LoginViewController (XIB)](#8-bước-6--tạo-loginviewcontroller-xib)
+9. [BƯỚC 7 — Cập nhật SceneDelegate để bắt đầu từ Splash](#9-bước-7--cập-nhật-scenedelegate-để-bắt-đầu-từ-splash)
+10. [Tổng kết & Checklist](#10-tổng-kết--checklist)
 
 ---
 
@@ -87,11 +89,12 @@ SDWebImage cung cấp `SDAnimatedImageView` — một subclass của `UIImageVie
 | Thêm file resource (.gif) vào Xcode | Bước 2 |
 | `SDAnimatedImageView` + `SDAnimatedImage` — chạy GIF | Bước 3 |
 | `DispatchQueue.main.asyncAfter` — delay tự chuyển màn | Bước 3 |
-| Tạo ViewController + XIB | Bước 3, 4 |
-| UITextField custom style (border đỏ, bo góc) | Bước 4 |
-| UIButton custom style (nền đỏ, bo góc) | Bước 4 |
-| NSAttributedString cho text nhiều màu | Bước 4 |
-| `SceneDelegate` routing — chọn rootViewController | Bước 5 |
+| Tạo ViewController + XIB | Bước 3, 6 |
+| **Tạo UIView component + XIB tái sử dụng** ← điểm mới | Bước 4, 5 |
+| **Nhúng custom XIB view vào XIB khác** ← kỹ thuật nâng cao | Bước 6 |
+| `@IBInspectable` — set property từ XIB | Bước 4 |
+| NSAttributedString cho text nhiều màu | Bước 6 |
+| `SceneDelegate` routing — chọn rootViewController | Bước 7 |
 
 ---
 
@@ -105,18 +108,31 @@ NetflixClone/
 │   ├── Resources/
 │   │   └── splash_animation.gif              ← [MỚI] File GIF animation (bạn tự thêm)
 │   │
+│   ├── Views/                                ← Các component tái sử dụng
+│   │   ├── NetflixTextField.swift            ← [MỚI] Custom UIView: text field kiểu Netflix
+│   │   ├── NetflixTextField.xib              ← [MỚI] XIB cho component trên
+│   │   ├── SocialSignInButton.swift          ← [MỚI] Custom UIView: nút tròn Google/Facebook
+│   │   └── SocialSignInButton.xib            ← [MỚI] XIB cho component trên
+│   │
 │   ├── Controllers/
 │   │   ├── SplashViewController.swift         ← [MỚI] Màn hình splash
 │   │   ├── SplashViewController.xib           ← [MỚI] XIB cho splash
-│   │   ├── LoginViewController.swift          ← [MỚI] Màn hình đăng nhập
+│   │   ├── LoginViewController.swift          ← [MỚI] Màn hình đăng nhập (dùng 2 component trên)
 │   │   └── LoginViewController.xib            ← [MỚI] XIB cho login
 │   │
 │   └── SceneDelegate.swift                    ← [SỬA] Đổi rootVC về SplashViewController
 ```
 
-**Thứ tự làm:** Podfile → GIF file → SplashVC → LoginVC → SceneDelegate
+**Thứ tự làm:** Podfile → GIF → SplashVC → **NetflixTextField** → **SocialSignInButton** → LoginVC → SceneDelegate
 
-**Tổng:** 4 file mới + 2 file sửa = 6 file
+> **Tại sao tách thành component?**
+> `NetflixTextField` và `SocialSignInButton` là UI có thể xuất hiện ở nhiều màn hình khác:
+> màn đăng ký, đổi mật khẩu, chỉnh sửa profile... Tách ra giúp:
+> - Không duplicate code style mỗi màn hình
+> - Sửa 1 chỗ là áp dụng toàn app
+> - LoginViewController chỉ còn lo điều phối logic, không lo styling
+
+**Tổng:** 8 file mới + 2 file sửa = 10 file
 
 ---
 
@@ -353,9 +369,327 @@ view.startAnimating()
 
 ---
 
-## 6. BƯỚC 4 — Tạo LoginViewController (XIB)
+## 6. BƯỚC 4 — Tạo NetflixTextField (Component tái sử dụng)
 
-> **Mục tiêu:** Tái tạo giao diện đăng nhập như hình — nền collage poster phim, NETFLIX logo, Email/Password fields, Sign In button, và Google/Facebook sign-in.
+> **Mục tiêu:** Tạo một custom UIView đóng gói hoàn toàn một text field theo style Netflix (border đỏ, nền đen, bo góc, placeholder xám).
+> Component này sẽ được dùng ở màn Login, và có thể tái sử dụng ở màn Đăng ký, Đổi mật khẩu,...
+
+### 6.1. Tạo file trong Xcode (3 bước — vì UIView không có tùy chọn XIB)
+
+> ⚠️ **Tại sao không tick "Also create XIB file" được?**
+> Xcode **chỉ cho phép** tick ô đó với subclass `UIViewController`, `UITableViewCell`, `UICollectionViewCell`.
+> Khi subclass là **`UIView`**, ô đó bị **disable** — phải tạo XIB thủ công riêng.
+
+#### Bước 1: Tạo file Swift
+
+1. Click phải vào folder **Views** → **New File...**
+2. Chọn template: **iOS → Cocoa Touch Class**
+3. Điền:
+   - **Class:** `NetflixTextField`
+   - **Subclass of:** `UIView`
+   - **Language:** Swift
+   - _(Bỏ qua ô Also create XIB — nó bị xám)_
+4. Nhấn **Next** → **Create**
+
+#### Bước 2: Tạo file XIB riêng
+
+1. Click phải vào folder **Views** → **New File...**
+2. Chọn template: **iOS → User Interface → View** ← _không phải Swift File_
+3. Đặt tên file: `NetflixTextField` → **Create**
+
+> ✅ Bây giờ bạn có 2 file: `NetflixTextField.swift` + `NetflixTextField.xib`
+
+#### Bước 3: Set File's Owner trong XIB ← **BẮT BUỘC**
+
+Mở `NetflixTextField.xib`, rồi:
+
+1. Trong **Document Outline** (cột trái XIB editor), click chọn **File's Owner**
+2. Mở **Identity Inspector** (`Cmd + Option + 3`)
+3. Ở trường **Custom Class**, gõ vào: `NetflixTextField` → Enter
+
+> **Tại sao cần set File's Owner?**
+> `nib.instantiate(withOwner: self, ...)` — `self` chính là instance `NetflixTextField`.
+> File's Owner = đối tượng nhận IBOutlet khi XIB được load.
+> Nếu không set → IBOutlet `textField` sẽ **nil** → app **crash** khi dùng.
+
+### 6.2. Thiết kế trong XIB (`NetflixTextField.xib`)
+
+#### A. Set kích thước preview XIB
+
+1. Chọn **View** (root) trong Document Outline
+2. **Attributes Inspector** → Size: **Freeform**
+3. **Size Inspector** → Width: **350**, Height: **52**
+4. Background: **Clear Color** ← root view phải trong suốt
+
+#### B. Thêm UITextField
+
+1. Kéo **UITextField** vào root view
+2. **Constraints**: Top = 0, Bottom = 0, Leading = 0, Trailing = 0 (full kích thước view)
+3. **Attributes Inspector**:
+   - Placeholder: `"Placeholder"` _(code sẽ override)_
+   - Text Color: **White**
+   - Background Color: **Black**
+   - Border Style: **None** _(style bằng code)_
+
+#### C. Kết nối IBOutlet → kéo vào **File's Owner**
+
+1. Mở **Assistant Editor** (`Ctrl + Option + Cmd + Enter`)
+2. Đảm bảo file Swift bên phải là `NetflixTextField.swift`
+3. Trong Document Outline, **Ctrl + kéo** từ UITextField → file Swift
+4. Đặt tên: `textField`, Type: `UITextField`
+
+> ⚠️ **Phải kéo outlet đến File's Owner** (đã set ở Bước 3 phía trên).
+> Không kéo đến root **View** — nếu làm vậy outlet sẽ **nil** và crash.
+
+### 6.3. Viết code `NetflixTextField.swift`
+
+```swift
+//
+//  NetflixTextField.swift
+//  NetflixClone
+//
+
+import UIKit
+
+class NetflixTextField: UIView {
+
+    // MARK: - IBOutlet
+    @IBOutlet weak var textField: UITextField!
+
+    // MARK: - Khởi tạo (bắt buộc khi load từ XIB)
+
+    // Dùng khi tạo bằng code: NetflixTextField()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        loadFromXib()
+    }
+
+    // Dùng khi XIB này được nhúng vào XIB khác
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        loadFromXib()
+    }
+
+    private func loadFromXib() {
+        // Load nội dung từ file NetflixTextField.xib và gắn vào self
+        let nib = UINib(nibName: "NetflixTextField", bundle: nil)
+        guard let contentView = nib.instantiate(withOwner: self, options: nil).first as? UIView else { return }
+        contentView.frame = bounds
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(contentView)
+        applyStyle()
+    }
+
+    // MARK: - Style
+
+    private func applyStyle() {
+        // Border đỏ Netflix
+        layer.borderColor = UIColor(red: 229/255, green: 9/255, blue: 20/255, alpha: 1).cgColor
+        layer.borderWidth = 1.5
+        layer.cornerRadius = 8
+        clipsToBounds = true
+
+        // TextField style
+        textField.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        textField.textColor = .white
+        textField.tintColor = .white
+
+        // Padding trái
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
+        textField.leftView = padding
+        textField.leftViewMode = .always
+    }
+
+    // MARK: - Public API (gọi từ LoginViewController)
+
+    /// Cấu hình placeholder và loại input
+    func configure(placeholder: String, isSecure: Bool = false, keyboardType: UIKeyboardType = .default) {
+        textField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: UIColor.lightGray]
+        )
+        textField.isSecureTextEntry = isSecure
+        textField.keyboardType = keyboardType
+    }
+
+    /// Lấy text người dùng nhập
+    var text: String? {
+        return textField.text
+    }
+
+    /// Set delegate để bắt Return Key
+    func setDelegate(_ delegate: UITextFieldDelegate) {
+        textField.delegate = delegate
+    }
+
+    func setReturnKeyType(_ type: UIReturnKeyType) {
+        textField.returnKeyType = type
+    }
+}
+```
+
+### 6.4. Giải thích kỹ thuật `loadFromXib()`
+
+```
+┌─────────────────────────────────────────────────────┐
+│          NetflixTextField (self = UIView)            │
+│                                                     │
+│  ┌───────────────────────────────────────────────┐  │
+│  │  contentView (load từ NetflixTextField.xib)   │  │
+│  │                                               │  │
+│  │  ┌─────────────────────────────────────────┐  │  │
+│  │  │           UITextField                   │  │  │
+│  │  └─────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+```
+
+| Câu hỏi | Trả lời |
+|---|---|
+| Tại sao cần `loadFromXib()`? | Vì UIView không tự load XIB — phải gọi `UINib.instantiate()` rồi `addSubview` |
+| Tại sao `init(frame:)` VÀ `init(coder:)`? | `frame:` dùng khi tạo bằng code; `coder:` dùng khi bị nhúng vào XIB khác |
+| Tại sao `autoresizingMask`? | Để contentView luôn lấp đầy `self` dù kích thước `self` thay đổi |
+
+### 6.5. Build kiểm tra
+
+`Cmd + B` — phải thành công, không lỗi.
+
+---
+
+## 7. BƯỚC 5 — Tạo SocialSignInButton (Component tái sử dụng)
+
+> **Mục tiêu:** Tạo nút tròn cho đăng nhập bằng Google/Facebook — có icon và màu nền configurable.
+> Tái sử dụng được ở bất kỳ màn hình nào cần social login.
+
+### 7.1. Tạo file trong Xcode (tương tự NetflixTextField)
+
+> ⚠️ **UIView subclass không có tùy chọn XIB** — phải tạo 2 file riêng.
+
+#### Bước 1: Tạo file Swift
+
+1. Click phải vào folder **Views** → **New File...**
+2. Chọn template: **iOS → Cocoa Touch Class**
+3. Điền:
+   - **Class:** `SocialSignInButton`
+   - **Subclass of:** `UIView`
+   - **Language:** Swift
+4. Nhấn **Next** → **Create**
+
+#### Bước 2: Tạo file XIB riêng
+
+1. Click phải vào folder **Views** → **New File...**
+2. Chọn template: **iOS → User Interface → View**
+3. Đặt tên: `SocialSignInButton` → **Create**
+
+#### Bước 3: Set File's Owner
+
+1. Mở `SocialSignInButton.xib`
+2. Chọn **File's Owner** trong Document Outline
+3. **Identity Inspector** (`Cmd + Option + 3`) → Custom Class: `SocialSignInButton` → Enter
+
+### 7.2. Thiết kế trong XIB (`SocialSignInButton.xib`)
+
+#### A. Set kích thước preview
+
+- Size: **Freeform**, Width: **48**, Height: **48**
+- Background root view: **Clear Color**
+
+#### B. Thêm UIButton
+
+1. Kéo **UIButton** vào root view
+2. **Constraints**: Top = 0, Bottom = 0, Leading = 0, Trailing = 0
+3. **Attributes Inspector**:
+   - Title: `"G"` (placeholder)
+   - Font: **System Bold, 20**
+   - Text Color: **White**
+
+#### C. Kết nối IBOutlet + IBAction → kéo vào **File's Owner**
+
+- Ctrl + kéo UIButton → file Swift: `button` (`@IBOutlet UIButton`)
+- Ctrl + kéo UIButton → file Swift: action `buttonTapped(_:)` (`@IBAction`)
+
+> ⚠️ Phải kéo vào **File's Owner**, không phải root View.
+
+### 7.3. Viết code `SocialSignInButton.swift`
+
+```swift
+//
+//  SocialSignInButton.swift
+//  NetflixClone
+//
+
+import UIKit
+
+class SocialSignInButton: UIView {
+
+    // MARK: - IBOutlet
+    @IBOutlet weak var button: UIButton!
+
+    // MARK: - Callback
+    /// LoginViewController set closure này để nhận tap event
+    var onTap: (() -> Void)?
+
+    // MARK: - Khởi tạo
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        loadFromXib()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        loadFromXib()
+    }
+
+    private func loadFromXib() {
+        let nib = UINib(nibName: "SocialSignInButton", bundle: nil)
+        guard let contentView = nib.instantiate(withOwner: self, options: nil).first as? UIView else { return }
+        contentView.frame = bounds
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(contentView)
+    }
+
+    // MARK: - Public API
+
+    /// Cấu hình icon và màu sắc
+    func configure(title: String, titleColor: UIColor, backgroundColor: UIColor) {
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(titleColor, for: .normal)
+        button.backgroundColor = backgroundColor
+
+        // Bo tròn — phải set sau khi layout xong
+        // Nên override layoutSubviews thay vì set ở đây
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // Đảm bảo bo tròn đúng bất kể kích thước
+        button.layer.cornerRadius = button.bounds.width / 2
+        button.clipsToBounds = true
+    }
+
+    // MARK: - IBAction
+
+    @IBAction func buttonTapped(_ sender: UIButton) {
+        onTap?()
+    }
+}
+```
+
+> **Tại sao dùng closure `onTap` thay vì delegate?**
+> Với component đơn giản (1 action), closure gọn hơn delegate.
+> Delegate phù hợp hơn khi component có nhiều events (như `UITableViewDelegate`).
+
+### 7.4. Build kiểm tra
+
+`Cmd + B` — phải thành công.
+
+---
+
+## 8. BƯỚC 6 — Tạo LoginViewController (XIB)
+
+> **Mục tiêu:** Lắp ráp màn Login từ các component đã tạo.
+> **LoginViewController không còn chứa bất kỳ style logic nào** — chỉ lo điều phối (configure component, handle action, navigate).
 
 ### 6.1. Tạo file trong Xcode
 
@@ -748,13 +1082,13 @@ extension LoginViewController: UITextFieldDelegate {
 
 ---
 
-## 7. BƯỚC 5 — Cập nhật SceneDelegate để bắt đầu từ Splash
+## 9. BƯỚC 7 — Cập nhật SceneDelegate để bắt đầu từ Splash
 
 > **Mục tiêu:** Thay đổi màn hình đầu tiên từ `MainTabBarViewController` sang `SplashViewController`.
 
-### 7.1. Mở file `SceneDelegate.swift`
+### 9.1. Mở file `SceneDelegate.swift`
 
-### 7.2. Sửa hàm `scene(_:willConnectTo:)`
+### 9.2. Sửa hàm `scene(_:willConnectTo:)`
 
 **Trước (code cũ):**
 
@@ -784,7 +1118,7 @@ func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options conn
 }
 ```
 
-### 7.3. Tại sao phải dùng `nibName:bundle:` ?
+### 9.3. Tại sao phải dùng `nibName:bundle:` ?
 
 ```swift
 // ❌ SAI — UIViewController() tìm Storyboard, không tìm XIB
@@ -797,7 +1131,7 @@ let vc = SplashViewController(nibName: "SplashViewController", bundle: nil)
 > **Quy tắc:** ViewController dùng XIB (không phải Storyboard) phải khởi tạo với `nibName:bundle:`.
 > `nibName` phải **khớp chính xác** tên file `.xib` — **phân biệt hoa thường**.
 
-### 7.4. Build và chạy
+### 9.4. Build và chạy
 
 `Cmd + R` — kết quả mong đợi:
 
@@ -810,7 +1144,7 @@ let vc = SplashViewController(nibName: "SplashViewController", bundle: nil)
 
 ---
 
-## 8. Tổng kết & Checklist
+## 10. Tổng kết & Checklist
 
 ### ✅ Checklist đầy đủ
 
@@ -821,7 +1155,7 @@ let vc = SplashViewController(nibName: "SplashViewController", bundle: nil)
 
 #### Bước 2 — File GIF
 - [ ] Đặt tên file là `splash_animation.gif`
-- [ ] Thêm vào folder **Resources** trong Xcode (**không** vào Assets.xcassets)
+- [ ] Thêm vào Xcode (**không** vào Assets.xcassets)
 - [ ] Tick ✅ Copy items if needed, ✅ Target Membership: NetflixClone
 
 #### Bước 3 — SplashViewController
@@ -831,15 +1165,31 @@ let vc = SplashViewController(nibName: "SplashViewController", bundle: nil)
 - [ ] Đổi `splashDuration` nếu muốn (mặc định 3 giây)
 - [ ] Build `Cmd + B` — không lỗi
 
-#### Bước 4 — LoginViewController
-- [ ] Tạo file với XIB
-- [ ] Thêm đủ elements: background, overlay, logo, 2 textfields, 1 button, 2 labels, 2 social buttons
-- [ ] Tất cả Auto Layout đầy đủ, đặc biệt **constraint Bottom** cho StackView
-- [ ] Kết nối đủ 9 IBOutlets + 3 IBActions
-- [ ] Viết code `setupUI()` đầy đủ
+#### Bước 4 — NetflixTextField (Component)
+- [ ] Tạo file với XIB (**Cocoa Touch Class**, Subclass = **UIView**, ✅ XIB)
+- [ ] Root view: Freeform 350x52, Background = **Clear**
+- [ ] Thêm UITextField, Constraints 0-0-0-0
+- [ ] Kết nối IBOutlet `textField`
+- [ ] Viết code `loadFromXib()` + `applyStyle()` + public API
 - [ ] Build `Cmd + B` — không lỗi
 
-#### Bước 5 — SceneDelegate
+#### Bước 5 — SocialSignInButton (Component)
+- [ ] Tạo file với XIB (**Cocoa Touch Class**, Subclass = **UIView**, ✅ XIB)
+- [ ] Root view: Freeform 48x48, Background = **Clear**
+- [ ] Thêm UIButton, Constraints 0-0-0-0
+- [ ] Kết nối IBOutlet `button` + IBAction `buttonTapped(_:)`
+- [ ] Viết code `loadFromXib()` + `configure()` + `onTap` closure
+- [ ] Build `Cmd + B` — không lỗi
+
+#### Bước 6 — LoginViewController
+- [ ] Tạo file với XIB
+- [ ] Thêm background, overlay, logo, **2 UIView với Custom Class = `NetflixTextField`**, Sign In button, 2 labels, **2 UIView với Custom Class = `SocialSignInButton`** trong StackView
+- [ ] Tất cả Auto Layout đầy đủ, đặc biệt **constraint Bottom** cho StackView
+- [ ] Kết nối outlets `emailFieldView`, `passwordFieldView` (type `NetflixTextField`), `googleButtonView`, `facebookButtonView` (type `SocialSignInButton`)
+- [ ] Viết code `setupComponents()` — chỉ configure, không style
+- [ ] Build `Cmd + B` — không lỗi
+
+#### Bước 7 — SceneDelegate
 - [ ] Đổi thành `SplashViewController(nibName: "SplashViewController", bundle: nil)`
 - [ ] Chạy app `Cmd + R` → splash → login → main app ✅
 
