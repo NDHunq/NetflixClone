@@ -52,6 +52,10 @@ class LoginViewController: UIViewController {
     
     let ssoClientId = "serviceapp.demo"
     let ssoRedirectUri = "netflixclone://callback"
+
+    private func short(_ value: String, head: Int = 8) -> String {
+        String(value.prefix(head))
+    }
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -198,6 +202,8 @@ class LoginViewController: UIViewController {
         // 3. Lưu verifier & state để dùng khi nhận callback
         UserDefaults.standard.set(codeVerifier, forKey: "SSO_Verifier")
         UserDefaults.standard.set(state, forKey: "SSO_State")
+
+        print("[SSO][Netflix][Init] client_id=\(ssoClientId) redirect_uri=\(ssoRedirectUri) state=\(state) verifier_len=\(codeVerifier.count) challenge_head=\(short(codeChallenge))")
         
         // 4. Gắn Deep Link
         var comp = URLComponents(string: "superapp://authorize")
@@ -211,6 +217,7 @@ class LoginViewController: UIViewController {
         
         guard let finalURL = comp?.url else { return }
         print("[SSO] Opening Super App: \(finalURL)")
+        print("[SSO][Netflix][Init] dispatch_url=\(finalURL.absoluteString)")
         
         // 5. Mở Super App
         if UIApplication.shared.canOpenURL(finalURL) {

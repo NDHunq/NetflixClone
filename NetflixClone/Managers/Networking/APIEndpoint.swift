@@ -30,6 +30,8 @@ enum APIEndpoint {
     case movieDetail(movieId: Int)          // GET /movie/{movie_id}
     case movieCredits(movieId: Int)         // GET /movie/{movie_id}/credits
     case movieVideos(movieId: Int)          // GET /movie/{movie_id}/videos
+    
+    case oidcToken                          // POST /oidc/token
 }
 
 extension APIEndpoint {
@@ -45,6 +47,7 @@ extension APIEndpoint {
         case .movieDetail(let movieId):  return "/movie/\(movieId)"
         case .movieCredits(let movieId): return "/movie/\(movieId)/credits"
         case .movieVideos(let movieId):  return "/movie/\(movieId)/videos"
+        case .oidcToken:                return "/oidc/token"
         }
     }
     
