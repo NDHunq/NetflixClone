@@ -47,6 +47,7 @@ struct SSOUserResponse: Codable {
     let id: Int
     let phone_number: String
     let full_name: String
+    let profile_name: String?
     let created_at: String?
 }
 
