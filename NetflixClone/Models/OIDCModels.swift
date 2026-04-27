@@ -32,8 +32,31 @@ struct OIDCTokenRequest: Codable {
 }
 
 struct OIDCTokenResponse: Codable {
-    let access_token: String
-    let id_token: String
-    let token_type: String
-    let expires_in: Int
+    let app_access_token: String
+    let app_token_type: String
+    let app_expires_in_seconds: Int
+    let user: SSOUserResponse
+    let identity: SSOIdentityResponse
+    let upstream_access_token: String
+    let upstream_id_token: String
+    let upstream_token_type: String
+    let upstream_expires_in: Int
+}
+
+struct SSOUserResponse: Codable {
+    let id: Int
+    let phone_number: String
+    let full_name: String
+    let created_at: String?
+}
+
+struct SSOIdentityResponse: Codable {
+    let provider: String
+    let subject: String
+    let profile_id: String
+    let audience: String?
+    let full_name: String?
+    let gender: String?
+    let local_user_id: Int
+    let last_login_at: String?
 }

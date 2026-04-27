@@ -145,6 +145,10 @@ class APICaller {
                 completion(.failure(.unknown("HTTP \(httpResponse.statusCode)")))
                 return
             }
+
+            if let httpResponse = response as? HTTPURLResponse {
+                print("[SSO][Netflix][API][Token] status=upstream_ok http_status=\(httpResponse.statusCode)")
+            }
             
             guard let data = data else {
                 completion(.failure(.invalidURL))
@@ -154,12 +158,68 @@ class APICaller {
             do {
                 let decoder = JSONDecoder()
                 let tokenResponse = try decoder.decode(OIDCTokenResponse.self, from: data)
-                print("[SSO][Netflix][API][Token] status=success access_token_head=\(self.short(tokenResponse.access_token))")
+                print("[SSO][Netflix][API][Token] status=success app_access_token_head=\(self.short(tokenResponse.app_access_token))")
+                print("[SSO][Netflix][API][Token] mapped local_user_id=\(tokenResponse.user.id) provider=\(tokenResponse.identity.provider) profile_id=\(tokenResponse.identity.profile_id)")
+                print("[SSO][Netflix][API][Token] upstream id_token_head=\(self.short(tokenResponse.upstream_id_token)) expires_in=\(tokenResponse.upstream_expires_in)")
                 completion(.success(tokenResponse))
             } catch {
                 let bodyString = String(data: data, encoding: .utf8) ?? ""
                 print("[SSO] Decode error: \(error). Body: \(bodyString)")
                 print("[SSO][Netflix][API][Token] status=failed reason=decode")
+                completion(.failure(.decodingFailed))
+            }
+        }.resume()
+    }
+    
+    /// Fetch current user profile from Netflix backend
+    func getUserProfile(completion: @escaping (Result<SSOUserResponse, NetworkError>) -> Void) {
+        let meEndpoint = "http://127.0.0.1:5001/auth/me"
+        
+        guard let token = UserDefaults.standard.string(forKey: "AccessToken") else {
+            print("[SSO][Netflix][API][Me] status=failed reason=no_access_token")
+            completion(.failure(.unknown("No access token")))
+            return
+        }
+        
+        guard let url = URL(string: meEndpoint) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        print("[SSO][Netflix][API][Me] status=request endpoint=\(meEndpoint) token_head=\(short(token))")
+        
+        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                print("[SSO][Netflix][API][Me] status=failed reason=network error=\(error.localizedDescription)")
+                completion(.failure(.noInternet))
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               !(200...299).contains(httpResponse.statusCode) {
+                let bodyString = String(data: data ?? Data(), encoding: .utf8) ?? ""
+                print("[SSO][Netflix][API][Me] status=failed http_status=\(httpResponse.statusCode) body=\(bodyString)")
+                completion(.failure(.unknown("HTTP \(httpResponse.statusCode)")))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(.invalidURL))
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let userResponse = try decoder.decode(SSOUserResponse.self, from: data)
+                print("[SSO][Netflix][API][Me] status=success user_id=\(userResponse.id) phone_head=\(self.short(userResponse.phone_number ?? ""))")
+                completion(.success(userResponse))
+            } catch {
+                let bodyString = String(data: data, encoding: .utf8) ?? ""
+                print("[SSO][Netflix][API][Me] status=failed reason=decode body=\(bodyString)")
                 completion(.failure(.decodingFailed))
             }
         }.resume()

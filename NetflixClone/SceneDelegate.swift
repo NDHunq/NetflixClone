@@ -62,6 +62,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         var callbackParams = [String: String]()
         queryItems.forEach { callbackParams[$0.name] = $0.value }
+
+        print("[SSO][Netflix][Callback] params=\(callbackParams.keys.sorted())")
         
         if let err = callbackParams["error"] {
             print("[SSO] Lỗi từ Super App: \(err)")
@@ -71,13 +73,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let code = callbackParams["code"], 
               let state = callbackParams["state"] else {
             print("[SSO] Missing code or state")
+                        print("[SSO][Netflix][Callback] status=failed reason=missing_code_or_state")
             return
         }
+
+                print("[SSO][Netflix][Callback] status=parsed code_head=\(short(code)) state=\(state)")
         
         let savedState = UserDefaults.standard.string(forKey: "SSO_State") ?? ""
         print("[SSO][Netflix][Callback] state_received=\(state) state_saved=\(savedState)")
         if state != savedState {
             print("[SSO] State không khớp - có thể bị CSRF attack")
+            print("[SSO][Netflix][Callback] status=failed reason=state_mismatch")
             return
         }
         
@@ -108,18 +114,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 switch result {
                 case .success(let tokenResponse):
                     print("[SSO] Token exchange successful")
-                    print("[SSO] ID Token: \(tokenResponse.id_token)")
-                    print("[SSO][Netflix][Token] status=success access_token_head=\(self.short(tokenResponse.access_token))")
+                    print("[SSO] Upstream ID Token: \(tokenResponse.upstream_id_token)")
+                    print("[SSO][Netflix][Token] status=success app_access_token_head=\(self.short(tokenResponse.app_access_token))")
+                    print("[SSO][Netflix][Token] mapped local_user_id=\(tokenResponse.user.id) profile_id=\(tokenResponse.identity.profile_id) provider=\(tokenResponse.identity.provider)")
                     
-                    if let payloadDict = self.decodeJWTPayload(jwt: tokenResponse.id_token) {
+                    if let payloadDict = self.decodeJWTPayload(jwt: tokenResponse.upstream_id_token) {
                         print("[SSO] Decoded payload: \(payloadDict)")
                     }
                     
-                    UserDefaults.standard.set(tokenResponse.access_token, forKey: "AccessToken")
-                    UserDefaults.standard.set(tokenResponse.id_token, forKey: "IdToken")
+                    // Netflix app session token ONLY (no PII, no upstream tokens)
+                    UserDefaults.standard.set(tokenResponse.app_access_token, forKey: "AccessToken")
+                    UserDefaults.standard.set(tokenResponse.app_expires_in_seconds, forKey: "TokenExpiresInSeconds")
+                    UserDefaults.standard.set(tokenResponse.user.id, forKey: "SSO_LocalUserId")
+
+                    print("[SSO][Netflix][Session] status=saved keys=AccessToken,TokenExpiresInSeconds,SSO_LocalUserId")
                     
                     UserDefaults.standard.removeObject(forKey: "SSO_Verifier")
                     UserDefaults.standard.removeObject(forKey: "SSO_State")
+
+                    print("[SSO][Netflix][Session] status=cleanup removed=SSO_Verifier,SSO_State")
                     
                     self.navigateToHome()
                     
