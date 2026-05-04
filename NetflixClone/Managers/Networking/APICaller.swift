@@ -101,7 +101,7 @@ class APICaller {
     func exchangeCodeForToken(request: OIDCTokenRequest, 
                               completion: @escaping (Result<OIDCTokenResponse, NetworkError>) -> Void) {
         // Netflix Clone Backend (Service App BE) sẽ proxy sang Super App BE
-        let tokenEndpoint = "http://127.0.0.1:5001/auth/oidc/token"
+        let tokenEndpoint = "http://172.20.10.2:5001/auth/oidc/token"
 
         print("[SSO][Netflix][API][Token] status=request endpoint=\(tokenEndpoint) client_id=\(request.client_id) code_head=\(short(request.code)) verifier_len=\(request.code_verifier.count)")
         
@@ -173,7 +173,7 @@ class APICaller {
     
     /// Fetch current user profile from Netflix backend
     func getUserProfile(completion: @escaping (Result<SSOUserResponse, NetworkError>) -> Void) {
-        let meEndpoint = "http://127.0.0.1:5001/auth/me"
+        let meEndpoint = "http://172.20.10.2:5001/auth/me"
         
         guard let token = UserDefaults.standard.string(forKey: "AccessToken") else {
             print("[SSO][Netflix][API][Me] status=failed reason=no_access_token")

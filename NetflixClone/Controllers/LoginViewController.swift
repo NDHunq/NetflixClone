@@ -32,7 +32,7 @@ class LoginViewController: UIViewController {
         let message: String?
     }
     
-    private let loginEndpoint = "http://127.0.0.1:5001/auth/login"
+    private let loginEndpoint = "http://172.20.10.2:5001/auth/login"
         
     @IBOutlet weak var backgroundImageView: UIImageView?
     @IBOutlet weak var overlayView: UIView?
@@ -46,7 +46,9 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var signInButton: UIButton?
     @IBOutlet weak var bottomLabel: UILabel?
-    @IBOutlet weak var superAppSignInButton: UIButton?
+    @IBOutlet weak var loginBySuperAppButton: UIView!
+    @IBOutlet weak var superAppLogo: UIImageView!
+    
     
     private var gradientLayer: CAGradientLayer?
     
@@ -90,16 +92,16 @@ class LoginViewController: UIViewController {
         netflixLogoLabel?.font = .systemFont(ofSize: 42, weight: .black)
         
         if let emailFieldView = emailFieldView, let passwordFieldView = passwordFieldView {
-            emailFieldView.configure(placeholder: "Phone number", keyboardType: .numberPad)
+            emailFieldView.configure(placeholder: "Số điện thoại", keyboardType: .numberPad)
             emailFieldView.setReturnKeyType(.next)
             emailFieldView.setDelegate(self)
             
-            passwordFieldView.configure(placeholder: "Password", isSecure: true)
+            passwordFieldView.configure(placeholder: "Mật khẩu", isSecure: true)
             passwordFieldView.setReturnKeyType(.done)
             passwordFieldView.setDelegate(self)
         } else {
-            styleLegacyTextField(emailTextField, placeholder: "Phone number", keyboardType: .numberPad, isSecure: false, returnKey: .next)
-            styleLegacyTextField(passwordTextField, placeholder: "Password", keyboardType: .default, isSecure: true, returnKey: .done)
+            styleLegacyTextField(emailTextField, placeholder: "Số điện thoại", keyboardType: .numberPad, isSecure: false, returnKey: .next)
+            styleLegacyTextField(passwordTextField, placeholder: "Mật khẩu", keyboardType: .default, isSecure: true, returnKey: .done)
             emailTextField?.delegate = self
             passwordTextField?.delegate = self
         }
@@ -134,7 +136,7 @@ class LoginViewController: UIViewController {
     }
         
     private func setupBottomLabel() {
-        let fullText = "Is it first time for you? Sign up now"
+        let fullText = "Bạn chưa có tài khoản? Đăng ký ngay"
         let attributed = NSMutableAttributedString(
             string: fullText,
             attributes: [
@@ -142,7 +144,7 @@ class LoginViewController: UIViewController {
                 .font: UIFont.systemFont(ofSize: 14)
             ]
         )
-        if let range = fullText.range(of: "Sign up now") {
+        if let range = fullText.range(of: "Đăng ký ngay") {
             let nsRange = NSRange(range, in: fullText)
             attributed.addAttributes([
                 .foregroundColor: UIColor(red: 229/255, green: 9/255, blue: 20/255, alpha: 1),
@@ -157,16 +159,16 @@ class LoginViewController: UIViewController {
     }
         
     private func setupSSOButton() {
-        guard let superAppSignInButton = superAppSignInButton else { return }
-        superAppSignInButton.setTitle("Super App", for: .normal)
-        superAppSignInButton.titleLabel?.tintColor = .white
-        superAppSignInButton.layer.cornerRadius = 6
-        superAppSignInButton.clipsToBounds = true
-        superAppSignInButton.backgroundColor = UIColor(red: 0/255.0, green: 139/255.0, blue: 91/255.0, alpha: 1.0)
+        loginBySuperAppButton.layer.cornerRadius = 12
+        loginBySuperAppButton.layer.borderColor = UIColor(red: 0/255.0, green: 139/255.0, blue: 91/255.0, alpha: 1.0).cgColor
+        loginBySuperAppButton.layer.borderWidth = 2
         
-        superAppSignInButton.addAction(UIAction { [weak self] _ in
-            self?.handleSuperAppSSO()
-        }, for: .touchUpInside)
+        superAppLogo.layer.cornerRadius = 12
+        
+        loginBySuperAppButton.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleSuperAppSSO))
+        loginBySuperAppButton.addGestureRecognizer(tapGesture)
+
     }
         
     @IBAction func signInTapped(_ sender: UIButton) {
@@ -191,7 +193,7 @@ class LoginViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func handleSuperAppSSO() {
+    @objc private func handleSuperAppSSO() {
         // 1. Sinh bộ khóa PKCE
         let codeVerifier = PKCEHelper.generateCodeVerifier()
         let codeChallenge = PKCEHelper.generateCodeChallenge(verifier: codeVerifier)
